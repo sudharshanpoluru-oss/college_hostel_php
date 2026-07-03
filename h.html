@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hostel Management System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f5f7fb; color: #1f2937; }
+    a { text-decoration: none; color: inherit; }
+    .container { width: 92%; max-width: 1200px; margin: auto; }
+
+    header {
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .hero {
+      min-height: 78vh;
+      display: flex;
+      align-items: center;
+      color: #fff;
+      background: linear-gradient(rgba(15,23,42,.7), rgba(15,23,42,.7)),
+                  url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80') center/cover;
+    }
+
+    .hero-content { max-width: 680px; padding: 80px 0; }
+    .hero h1 { font-size: 3rem; margin-bottom: 14px; }
+    .hero p { font-size: 1.1rem; color: #e5e7eb; margin-bottom: 22px; }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      margin-right: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-primary { background: #f97316; color: #fff; }
+    .btn-secondary { background: #fff; color: #0f172a; }
+
+    section { padding: 64px 0; }
+    .section-title { text-align: center; margin-bottom: 28px; font-size: 2rem; }
+
+    .grid {
+      display: grid;
+      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.08);
+    }
+
+    .list {
+      list-style: none;
+      margin-top: 12px;
+    }
+
+    .list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .contact {
+      background: #0f172a;
+      color: #fff;
+      text-align: center;
+    }
+
+    .contact p { color: #cbd5e1; margin-top: 8px; }
+
+    footer {
+      background: #111827;
+      color: #cbd5e1;
+      text-align: center;
+      padding: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.1rem; }
+      .nav { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container nav">
+      <h2>Sunrise Hostel</h2>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#public">Public Info</a></li>
+        <li><a href="#admin">Admin Panel</a></li>
+        <li><a href="#student">Student Panel</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="container hero-content">
+      <h1>Comfortable hostel living for students</h1>
+      <p>Manage rooms, fees, attendance, and student services in one simple platform.</p>
+      <a href="#admin" class="btn btn-primary">Admin Panel</a>
+      <a href="#student" class="btn btn-secondary">Student Panel</a>
+    </div>
+  </section>
+
+  <section id="public">
+    <div class="container">
+      <h2 class="section-title">Public Information</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="tag">Rooms</div>
+          <h3>Single, Double, Triple</h3>
+          <p>Different room options for comfort and budget.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Amenities</div>
+          <h3>Wi‑Fi, Food, Security</h3>
+          <p>Essential facilities for students and travelers.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Location</div>
+          <h3>Near colleges and bus stand</h3>
+          <p>Easy access to transport and nearby institutes.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Reviews</div>
+          <h3>Trusted by students</h3>
+          <p>Show testimonials to build trust and improve bookings.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="admin" style="background:#eef2ff;">
+    <div class="container">
+      <h2 class="section-title">Admin Panel</h2>
+      <div class="panel">
+        <p>Admin dashboard for complete hostel control and operations management [web:12].</p>
+        <ul class="list">
+          <li>Room allocation and floor management.</li>
+          <li>Student management and occupancy tracking.</li>
+          <li>Fee collection and payment status.</li>
+          <li>Attendance, mess, and complaint handling.</li>
+          <li>Reports, analytics, and notices.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="student">
+    <div class="container">
+      <h2 class="section-title">Student Panel</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Dashboard</h3>
+          <p>Quick access to important updates and current hostel details [web:13][web:15].</p>
+        </div>
+        <div class="card">
+          <h3>My Room</h3>
+          <p>View room number, bed details, and allocation status.</p>
+        </div>
+        <div class="card">
+          <h3>Fee Status</h3>
+          <p>Check pending and paid fees at a glance.</p>
+        </div>
+        <div class="card">
+          <h3>Notices & Complaints</h3>
+          <p>Read announcements and submit issues easily.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="container">
+      <h2 class="section-title" style="color:#fff;">Contact</h2>
+      <p>Phone: +91 98765 43210</p>
+      <p>Email: info@sunrisehostel.com</p>
+      <p>Tirupati, Andhra Pradesh</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Sunrise Hostel</p>
+  </footer>
+
+</body>
+</html>

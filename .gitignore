@@ -1,0 +1,15 @@
+# Uploaded files
+uploads/*
+
+# Backups
+backups/*
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
