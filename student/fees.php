@@ -13,8 +13,8 @@ $fees = $feesStmt->fetchAll();
 $totalPaid = 0;
 $totalDue = 0;
 foreach ($fees as $fee) {
-    $totalPaid += $fee['paid_amount'];
-    $totalDue += $fee['due_amount'];
+    $totalPaid += max(0, $fee['paid_amount']);
+    $totalDue += max(0, $fee['due_amount']);
 }
 ?>
 
@@ -53,13 +53,16 @@ foreach ($fees as $fee) {
                 <table class="table table-bordered table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th>Total Fee</th>
-                            <th>Paid Amount</th>
-                            <th>Due Amount</th>
-                            <th>Payment Mode</th>
-                            <th>Receipt No</th>
-                            <th>Date</th>
-                            <th>Status</th>
+                            <th>Month</th>
+                            <th>Year</th>
+                            <th>Academic Year</th>
+                            <th>Days Present</th>
+                            <th>Charge/Day</th>
+                            <th>Electricity Bill</th>
+                            <th>Mess Bill</th>
+                            <th>Total Bill</th>
+                            <th>Payment Status</th>
+                            <th>DU Reference No</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -67,24 +70,28 @@ foreach ($fees as $fee) {
                         <?php if ($fees): ?>
                             <?php foreach ($fees as $fee): ?>
                                 <tr>
-                                    <td>₹<?= number_format($fee['total_fee']) ?></td>
-                                    <td>₹<?= number_format($fee['paid_amount']) ?></td>
-                                    <td>₹<?= number_format($fee['due_amount']) ?></td>
-                                    <td><?= htmlspecialchars($fee['payment_mode']) ?></td>
-                                    <td><?= htmlspecialchars($fee['transaction_id'] ?? $fee['receipt_no']) ?></td>
-                                    <td><?= date('d M Y', strtotime($fee['payment_date'])) ?></td>
+                                    <td><?= htmlspecialchars($fee['bill_month'] ?? '') ?: '—' ?></td>
+                                    <td><?= htmlspecialchars($fee['bill_year'] ?? '') ?: '—' ?></td>
+                                    <td><?= htmlspecialchars($fee['academic_year'] ?? '') ?: '—' ?></td>
+                                    <td><?= (int)($fee['days_present'] ?? 0) ?></td>
+                                    <td>₹<?= number_format(max(0,$fee['charge_per_day'] ?? 0), 2) ?></td>
+                                    <td>₹<?= number_format(max(0,$fee['electricity_bill'] ?? 0), 2) ?></td>
+                                    <td>₹<?= number_format(max(0,$fee['mess_bill'] ?? 0), 2) ?></td>
+                                    <td><strong>₹<?= number_format(max(0,$fee['total_fee'])) ?></strong></td>
                                     <td>
                                         <span class="badge bg-<?= $fee['status'] == 'Paid' ? 'success' : ($fee['status'] == 'Partial' ? 'warning' : 'danger') ?>">
-                                            <?= $fee['status'] ?>
+                                            <?= htmlspecialchars($fee['status']) ?>
                                         </span>
                                     </td>
+                                    <td><?= htmlspecialchars($fee['receipt_no']) ?: '—' ?></td>
                                     <td>
+                                        <?php if ($fee['paid_amount'] > 0): ?>
+                                            <a href="<?= BASE_URL ?>/student/receipt.php?fee_id=<?= $fee['id'] ?>" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="bi bi-receipt"></i> Receipt</a>
+                                        <?php endif; ?>
                                         <?php if ($fee['due_amount'] > 0): ?>
-                                            <div class="d-flex gap-1 flex-wrap">
-                                                <button class="btn btn-success btn-sm pay-now" data-fee-id="<?= $fee['id'] ?>" data-amount="<?= $fee['due_amount'] ?>">Razorpay</button>
-                                                <a href="<?= BASE_URL ?>/student/upi-pay.php?fee_id=<?= $fee['id'] ?>" class="btn btn-primary btn-sm">Pay via UPI</a>
-                                            </div>
-                                        <?php else: ?>
+                                            <a href="<?= BASE_URL ?>/student/sbi-pay.php?fee_id=<?= $fee['id'] ?>" class="btn btn-success btn-sm"><i class="bi bi-bank"></i> Pay via SBI Collect</a>
+                                        <?php endif; ?>
+                                        <?php if ($fee['due_amount'] <= 0 && $fee['paid_amount'] <= 0): ?>
                                             <span class="text-muted">--</span>
                                         <?php endif; ?>
                                     </td>
@@ -99,77 +106,5 @@ foreach ($fees as $fee) {
         </div>
     </div>
 </div>
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-document.querySelectorAll('.pay-now').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const feeId = this.dataset.feeId;
-        const amount = parseFloat(this.dataset.amount);
-        const btnEl = this;
-        btnEl.disabled = true;
-        btnEl.textContent = 'Processing...';
-
-        fetch('<?= BASE_URL ?>/student/pay.php?action=create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'fee_id=' + feeId
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                alert(data.message);
-                btnEl.disabled = false;
-                btnEl.textContent = 'Pay Now';
-                return;
-            }
-
-            const options = {
-                key: '<?= RAZORPAY_KEY_ID ?>',
-                amount: data.amount,
-                currency: 'INR',
-                name: '<?= SITE_NAME ?>',
-                description: 'Fee Payment',
-                order_id: data.order_id,
-                prefill: {
-                    name: '<?= addslashes($student['name']) ?>',
-                    email: '<?= addslashes($student['email']) ?>',
-                    contact: '<?= addslashes($student['phone']) ?>'
-                },
-                handler: function(response) {
-                    fetch('<?= BASE_URL ?>/student/pay.php?action=verify', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: 'fee_id=' + feeId + '&razorpay_payment_id=' + response.razorpay_payment_id + '&razorpay_order_id=' + response.razorpay_order_id + '&razorpay_signature=' + response.razorpay_signature
-                    })
-                    .then(res => res.json())
-                    .then(result => {
-                        if (result.success) {
-                            window.location.href = '<?= BASE_URL ?>/student/fees.php?payment=success';
-                        } else {
-                            alert(result.message);
-                            window.location.href = '<?= BASE_URL ?>/student/fees.php?payment=failed';
-                        }
-                    });
-                },
-                modal: {
-                    ondismiss: function() {
-                        btnEl.disabled = false;
-                        btnEl.textContent = 'Pay Now';
-                    }
-                }
-            };
-
-            const rzp = new Razorpay(options);
-            rzp.open();
-        })
-        .catch(() => {
-            alert('Something went wrong. Please try again.');
-            btnEl.disabled = false;
-            btnEl.textContent = 'Pay Now';
-        });
-    });
-});
-</script>
 
 <?php require_once __DIR__ . '/../includes/student-footer.php'; ?>

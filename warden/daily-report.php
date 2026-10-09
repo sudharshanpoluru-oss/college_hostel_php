@@ -3,7 +3,6 @@ $title = 'Daily Report';
 require_once __DIR__ . '/../includes/warden-header.php';
 
 $hostelType = getWardenHostelType();
-$hostelFilter = $hostelType ? " AND s.hostel_type = '$hostelType'" : '';
 
 $action = $_GET['action'] ?? 'list';
 $page   = (int)($_GET['p'] ?? 1);

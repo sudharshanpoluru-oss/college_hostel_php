@@ -56,19 +56,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = db()->prepare("UPDATE wardens SET name=?, phone=?, email=?, photo=?, shift=?, hostel_type=? WHERE id=?");
             $stmt->execute([$name, $phone, $email, $photo, $shift, $hostel_type, $id]);
 
-            if (!empty($password) && !$auto_pass) {
+            $newPassword = '';
+            if ($auto_pass || (!empty($password) && !$auto_pass)) {
+                $password = $auto_pass ? bin2hex(random_bytes(4)) : $password;
                 $hashed = password_hash($password, PASSWORD_DEFAULT);
                 db()->prepare("UPDATE users SET password=? WHERE id=?")->execute([$hashed, $old['user_id']]);
+                $newPassword = $auto_pass ? " New password: $password." : ' Password changed.';
             }
 
-            if ($username && !$auto_user) {
+            if ($auto_user) {
+                $username = 'wdn_' . strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $name)) . '_' . rand(100, 999);
+            }
+
+            if (!empty($username)) {
                 db()->prepare("UPDATE users SET username=?, email=? WHERE id=?")->execute([$username, $email, $old['user_id']]);
             } else {
                 db()->prepare("UPDATE users SET email=? WHERE id=?")->execute([$email, $old['user_id']]);
             }
 
             auditLog('Update Warden', 'Wardens', "Updated warden: $name (ID: $id)");
-            setAlert('success', 'Warden updated.');
+            setAlert('success', 'Warden updated.' . $newPassword);
         }
         redirect(BASE_URL . '/admin/wardens.php');
     } catch (PDOException $e) {
@@ -135,7 +142,7 @@ $wardens = db()->query("SELECT w.*, u.username FROM wardens w JOIN users u ON u.
     <div class="card">
         <div class="card-header"><strong><?= $action==='add'?'Add':'Edit' ?> Warden</strong></div>
         <div class="card-body">
-            <form method="post" action="?action=add" enctype="multipart/form-data" class="row g-3"><?= csrfField() ?>
+            <form method="post" action="<?= $action === 'edit' ? '?action=edit&id=' . $id : '?action=add' ?>" enctype="multipart/form-data" class="row g-3"><?= csrfField() ?>
                 <div class="col-md-6"><label>Warden Name</label><input type="text" name="name" class="form-control" value="<?= sanitize($w['name']) ?>" required></div>
                 <div class="col-md-3"><label>Phone</label><input type="text" name="phone" class="form-control" value="<?= sanitize($w['phone']) ?>"></div>
                 <div class="col-md-3"><label>Email</label><input type="email" name="email" class="form-control" value="<?= sanitize($w['email']) ?>"></div>

@@ -36,6 +36,13 @@ try {
 $selectedType = $_GET['room_type'] ?? '';
 $selectedStatus = $_GET['status'] ?? '';
 $searchValue = $_GET['search'] ?? '';
+
+$roomImages = [
+    'Single' => 'room-single.jpg',
+    'Double' => 'room-double.jpg',
+    'Triple' => 'room-triple.jpg',
+    'Dormitory' => 'sample-dorm-room.jpg',
+];
 ?>
 
 <section class="bg-primary text-white py-4">
@@ -89,6 +96,9 @@ $searchValue = $_GET['search'] ?? '';
                 <?php foreach ($rooms as $room): ?>
                     <div class="col-md-4">
                         <div class="card h-100 shadow-sm">
+                            <div style="height: 180px; overflow: hidden;">
+                                <img src="<?= BASE_URL ?>/uploads/<?= $roomImages[$room['room_type']] ?? 'sample-dorm-room.jpg' ?>" alt="Room <?= sanitize($room['room_no']) ?>" class="w-100 h-100" style="object-fit: cover;" loading="lazy">
+                            </div>
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <span class="badge bg-dark fs-6">Room <?= sanitize($room['room_no']) ?></span>

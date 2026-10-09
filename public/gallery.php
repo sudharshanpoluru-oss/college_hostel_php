@@ -15,14 +15,14 @@ try {
 $placeholders = [];
 if (count($images) === 0) {
     $placeholders = [
-        ['title' => 'Main Building', 'category' => 'Exterior', 'color' => '#4e73df'],
-        ['title' => 'Reception Area', 'category' => 'Interior', 'color' => '#1cc88a'],
-        ['title' => 'Common Room', 'category' => 'Common Areas', 'color' => '#36b9cc'],
-        ['title' => 'Library', 'category' => 'Facilities', 'color' => '#f6c23e'],
-        ['title' => 'Dining Hall', 'category' => 'Facilities', 'color' => '#e74a3b'],
-        ['title' => 'Gym', 'category' => 'Facilities', 'color' => '#858796'],
-        ['title' => 'Garden Area', 'category' => 'Exterior', 'color' => '#5a5c69'],
-        ['title' => 'Study Room', 'category' => 'Common Areas', 'color' => '#2c9faf']
+        ['title' => 'Main Building', 'category' => 'Exterior', 'image' => 'sample-campus-building.jpg'],
+        ['title' => 'Reception Area', 'category' => 'Interior', 'image' => 'sample-reception.jpg'],
+        ['title' => 'Common Room', 'category' => 'Common Areas', 'image' => 'sample-common-room.jpg'],
+        ['title' => 'Library', 'category' => 'Facilities', 'image' => 'sample-library.jpg'],
+        ['title' => 'Dining Hall', 'category' => 'Facilities', 'image' => 'sample-dining.jpg'],
+        ['title' => 'Gym', 'category' => 'Facilities', 'image' => 'sample-gym.jpg'],
+        ['title' => 'Garden Area', 'category' => 'Exterior', 'image' => 'sample-garden.jpg'],
+        ['title' => 'Study Room', 'category' => 'Common Areas', 'image' => 'sample-study-area.jpg']
     ];
 }
 ?>
@@ -56,9 +56,9 @@ if (count($images) === 0) {
             <div class="row g-4">
                 <?php foreach ($placeholders as $item): ?>
                     <div class="col-md-3 col-6">
-                        <div class="card h-100 shadow-sm gallery-item" role="button" data-bs-toggle="modal" data-bs-target="#imageModal" data-title="<?= $item['title'] ?>" data-category="<?= $item['category'] ?>" data-color="<?= $item['color'] ?>">
-                            <div style="height: 180px; background: <?= $item['color'] ?>; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-building text-white" style="font-size: 3rem;"></i>
+                        <div class="card h-100 shadow-sm gallery-item" role="button" data-bs-toggle="modal" data-bs-target="#imageModal" data-title="<?= $item['title'] ?>" data-category="<?= $item['category'] ?>" data-src="<?= BASE_URL ?>/uploads/<?= $item['image'] ?>">
+                            <div style="height: 180px; background: #e9ecef; overflow: hidden;">
+                                <img src="<?= BASE_URL ?>/uploads/<?= $item['image'] ?>" alt="<?= $item['title'] ?>" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\'bi bi-building text-secondary\' style=\'font-size:3rem\'></i>'">
                             </div>
                             <div class="card-body text-center">
                                 <h6 class="card-title"><?= $item['title'] ?></h6>

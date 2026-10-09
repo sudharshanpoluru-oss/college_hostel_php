@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?? SITE_NAME ?> - <?= SITE_NAME ?></title>
-    <meta name="description" content="Premium student hostel accommodation with modern amenities, 24/7 security, and healthy meals.">
-    <meta property="og:title" content="<?= SITE_NAME ?> - Premium Student Accommodation">
+    <meta name="description" content="Hostels of <?= SITE_NAME ?> — safe and comfortable student accommodation with modern amenities, 24/7 security, and healthy meals.">
+    <meta property="og:title" content="<?= SITE_NAME ?> - Student Hostel Accommodation">
     <meta property="og:description" content="Safe, comfortable, and affordable accommodation for students.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=6">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg fixed-top">

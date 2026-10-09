@@ -48,7 +48,12 @@ if ($action === 'create-order') {
     curl_close($ch);
 
     if ($httpCode !== 200) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create payment order']);
+        $apiError = json_decode($response, true);
+        $detail = $apiError['error']['description'] ?? ('HTTP ' . $httpCode);
+        if (strpos(RAZORPAY_KEY_ID, 'YOUR_KEY_ID') !== false || strpos(RAZORPAY_KEY_SECRET, 'YOUR_KEY_SECRET') !== false) {
+            $detail = 'Razorpay keys are not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in config/config.php.';
+        }
+        echo json_encode(['success' => false, 'message' => 'Payment order failed: ' . $detail]);
         exit;
     }
 
@@ -109,7 +114,7 @@ if ($action === 'verify') {
     $stmt = db()->prepare("UPDATE fees SET paid_amount = ?, payment_mode = 'Online', receipt_no = ?, transaction_id = ?, payment_date = CURDATE(), status = ? WHERE id = ?");
     $stmt->execute([$new_paid, $razorpay_order_id, $razorpay_payment_id, $status, $fee_id]);
 
-    $stmt = db()->prepare("INSERT INTO activity_log (user_type, user_id, action, details) VALUES ('student', ?, 'Fee Payment', ?)");
+    $stmt = db()->prepare("INSERT INTO activity_log (user_id, action, description) VALUES (?, 'Fee Payment', ?)");
     $stmt->execute([$_SESSION['user_id'], 'Online payment of ₹' . number_format($fee['due_amount'], 2) . ' for fee #' . $fee_id]);
 
     echo json_encode(['success' => true, 'message' => 'Payment successful']);

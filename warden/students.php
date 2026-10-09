@@ -4,8 +4,7 @@ $title = 'Students';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/security.php';
 require_once __DIR__ . '/../config/functions.php';
-$hostelType = getWardenHostelType();
-$hostelFilter = $hostelType ? " AND s.hostel_type = '$hostelType'" : '';
+$hostelFilter = getHostelFilterCondition('s');
 
 // JSON endpoint for profile modal
 if (isset($_GET['action']) && $_GET['action'] === 'profile' && isset($_GET['id'])) {

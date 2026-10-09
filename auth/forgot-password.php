@@ -68,12 +68,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Forgot Password - <?= SITE_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=6">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-5">
+<body>
+    <div class="auth-shell">
+        <aside class="auth-brand d-none d-lg-flex">
+            <div>
+                <div class="brand-logo mb-3"><i class="bi bi-building"></i></div>
+                <h4 class="fw-bold mb-1"><?= SITE_NAME ?></h4>
+                <p class="text-white-50 small mb-0">Account recovery, made easy.</p>
+            </div>
+            <div class="my-auto">
+                <h1>Locked out? No problem.</h1>
+                <p class="lead-text mt-3">Enter your registered email and we'll send you a secure link to reset your password.</p>
+            </div>
+            <div class="small text-white-50">&copy; <?= date('Y') ?> <?= SITE_NAME ?></div>
+        </aside>
+        <main class="auth-form-side w-100">
                 <div class="login-card">
                     <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                         <div class="card-body p-5">
@@ -145,8 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+        </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

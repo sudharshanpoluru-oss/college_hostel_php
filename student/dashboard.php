@@ -176,7 +176,11 @@ $attPct = $attendance['total'] > 0 ? round(($attendance['present'] / $attendance
                         <?php endforeach; ?>
                     </div>
                     <?php else: ?>
-                    <div class="text-center py-3 text-muted small">No menu for today</div>
+                    <div class="empty-state empty-state-sm">
+                        <span class="empty-icon"><i class="bi bi-cup"></i></span>
+                        <div class="empty-title">Menu not published</div>
+                        <div class="empty-text">Today's mess menu hasn't been added yet.</div>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -224,7 +228,11 @@ $attPct = $attendance['total'] > 0 ? round(($attendance['present'] / $attendance
                         </table>
                     </div>
                     <?php else: ?>
-                    <div class="text-center py-3 text-muted small">No fee records</div>
+                    <div class="empty-state empty-state-sm">
+                        <span class="empty-icon"><i class="bi bi-receipt"></i></span>
+                        <div class="empty-title">No fee records</div>
+                        <div class="empty-text">Your bills will appear here once issued.</div>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -248,7 +256,11 @@ $attPct = $attendance['total'] > 0 ? round(($attendance['present'] / $attendance
                         </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                    <div class="text-center py-3 text-muted small">No upcoming events</div>
+                    <div class="empty-state empty-state-sm">
+                        <span class="empty-icon"><i class="bi bi-calendar-x"></i></span>
+                        <div class="empty-title">No upcoming events</div>
+                        <div class="empty-text">Check back soon — new events will show up here.</div>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -270,7 +282,11 @@ $attPct = $attendance['total'] > 0 ? round(($attendance['present'] / $attendance
                         <?php endforeach; ?>
                     </div>
                     <?php else: ?>
-                    <div class="text-center py-3 text-muted small">No recent activity</div>
+                    <div class="empty-state empty-state-sm">
+                        <span class="empty-icon"><i class="bi bi-activity"></i></span>
+                        <div class="empty-title">Nothing yet</div>
+                        <div class="empty-text">Your recent activity will appear here.</div>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>

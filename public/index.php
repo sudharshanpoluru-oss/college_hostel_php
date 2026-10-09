@@ -26,6 +26,13 @@ try { $stmt = db()->query("SELECT * FROM notices WHERE status=1 AND (expiry_date
 
 $gallery = [];
 try { $stmt = db()->query("SELECT * FROM gallery WHERE status=1 ORDER BY id DESC LIMIT 6"); $gallery = $stmt->fetchAll(); } catch (Exception $e) {}
+
+$roomImages = [
+    'Single' => 'room-single.jpg',
+    'Double' => 'room-double.jpg',
+    'Triple' => 'room-triple.jpg',
+    'Dormitory' => 'sample-dorm-room.jpg',
+];
 ?>
 
 <!-- Hero Section -->
@@ -34,19 +41,25 @@ try { $stmt = db()->query("SELECT * FROM gallery WHERE status=1 ORDER BY id DESC
     <div class="hero-shape hero-shape-2"></div>
     <div class="hero-shape hero-shape-3"></div>
     <div class="hero-shape hero-shape-4"></div>
-    <div class="container text-center">
+    <div class="container text-center"><br><br> 
         <div class="hero-badge">
             <i class="bi bi-star-fill" style="color:#f59e0b"></i>
-            Premier Student Accommodation
+            YSR Engineering College of YVU, Proddatur
         </div>
         <h1 class="mb-3">Your Home Away<br>From Home</h1>
-        <p class="lead mb-4 mx-auto" style="max-width:600px">Safe, comfortable, and affordable accommodation for students pursuing their academic goals. Experience a home-like environment with modern amenities.</p>
+        <p class="lead mb-4 mx-auto" style="max-width:600px">Safe, comfortable, and affordable hostel accommodation for students of YSR Engineering College of YVU. Experience a home-like environment with modern amenities.</p>
         <div class="d-flex flex-wrap justify-content-center gap-3">
             <a href="<?= BASE_URL ?>/public/rooms.php" class="btn btn-light btn-lg fw-bold px-4"><i class="bi bi-door-open"></i> View Rooms</a>
             <a href="<?= BASE_URL ?>/public/contact.php" class="btn btn-outline-light btn-lg fw-bold px-4"><i class="bi bi-envelope"></i> Contact Us</a>
             <?php if (!isLoggedIn()): ?>
             <a href="<?= BASE_URL ?>/auth/register.php" class="btn btn-success btn-lg fw-bold px-4"><i class="bi bi-person-plus"></i> Register Now</a>
             <?php endif; ?>
+        </div>
+        <div class="mt-4">
+            <a href="#why-choose" class="hero-scroll-cue" aria-label="Scroll down to explore more">
+                <i class="bi bi-chevron-double-down"></i>
+                <span>Scroll to explore more</span>
+            </a>
         </div>
     </div>
 </section>
@@ -94,9 +107,9 @@ try { $stmt = db()->query("SELECT * FROM gallery WHERE status=1 ORDER BY id DESC
         </div>
     </div>
 </section>
-
+<br><br>
 <!-- Why Choose Us -->
-<section class="py-5 scroll-fade">
+<section class="py-5 scroll-fade" id="why-choose" style="scroll-margin-top:70px">
     <div class="container">
         <h2 class="text-center fw-bold mb-2">Why Choose Our Hostel</h2>
         <div class="section-divider"></div>
@@ -159,6 +172,9 @@ try { $stmt = db()->query("SELECT * FROM gallery WHERE status=1 ORDER BY id DESC
                 <?php foreach ($featuredRooms as $room): ?>
                 <div class="col-md-3 col-6">
                     <div class="card room-card h-100">
+                        <div style="height: 130px; overflow: hidden;">
+                            <img src="<?= BASE_URL ?>/uploads/<?= $roomImages[$room['room_type']] ?? 'sample-dorm-room.jpg' ?>" alt="Room <?= sanitize($room['room_no']) ?>" class="w-100 h-100" style="object-fit: cover;" loading="lazy">
+                        </div>
                         <div class="card-body">
                             <span class="badge bg-primary mb-2">Room <?= sanitize($room['room_no']) ?></span>
                             <h5 class="card-title"><?= sanitize($room['room_type']) ?></h5>
@@ -208,30 +224,25 @@ try { $stmt = db()->query("SELECT * FROM gallery WHERE status=1 ORDER BY id DESC
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>
-            <div class="col-md-4 col-6">
-                <div class="gallery-item">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px">
-                        <i class="bi bi-image text-muted fs-1"></i>
+                <?php
+                $sampleGallery = [
+                    ['sample-campus-building.jpg', 'Hostel Building'],
+                    ['sample-dorm-room.jpg', 'Dormitory Room'],
+                    ['sample-common-room.jpg', 'Common Room'],
+                    ['sample-dining.jpg', 'Dining Hall'],
+                    ['sample-library.jpg', 'Library'],
+                    ['sample-study-area.jpg', 'Study Area'],
+                ];
+                foreach ($sampleGallery as $sg): ?>
+                <div class="col-md-4 col-6">
+                    <div class="gallery-item">
+                        <img src="<?= BASE_URL ?>/uploads/<?= $sg[0] ?>" class="w-100" style="height:200px;object-fit:cover" alt="<?= $sg[1] ?>" loading="lazy">
+                        <div class="p-2">
+                            <small class="fw-medium"><?= $sg[1] ?></small>
+                        </div>
                     </div>
-                    <div class="p-2"><small class="fw-medium">Hostel Building</small></div>
                 </div>
-            </div>
-            <div class="col-md-4 col-6">
-                <div class="gallery-item">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px">
-                        <i class="bi bi-image text-muted fs-1"></i>
-                    </div>
-                    <div class="p-2"><small class="fw-medium">Common Room</small></div>
-                </div>
-            </div>
-            <div class="col-md-4 col-6">
-                <div class="gallery-item">
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px">
-                        <i class="bi bi-image text-muted fs-1"></i>
-                    </div>
-                    <div class="p-2"><small class="fw-medium">Dining Hall</small></div>
-                </div>
-            </div>
+                <?php endforeach; ?>
             <?php endif; ?>
         </div>
         <div class="text-center mt-4">

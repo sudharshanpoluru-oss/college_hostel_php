@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 if (isLoggedIn()) {
     redirect(isAdmin() ? BASE_URL . '/admin/dashboard.php' : BASE_URL . '/student/dashboard.php');
@@ -26,8 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emergency_name    = sanitize($_POST['emergency_contact_name'] ?? '');
     $emergency_phone   = sanitize($_POST['emergency_contact'] ?? '');
     $medical_info      = sanitize($_POST['medical_info'] ?? '');
-    $password          = $_POST['password'] ?? '';
-    $confirm           = $_POST['confirm_password'] ?? '';
     $agree             = isset($_POST['agree']);
     $photo = '';
 
@@ -37,23 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email)) $errors[] = 'Email is required';
     elseif (!validateEmail($email)) $errors[] = 'Please enter a valid email';
     if (empty($phone)) $errors[] = 'Phone number is required';
+    elseif (!preg_match('/^[0-9]{10}$/', $phone)) $errors[] = 'Phone number must be exactly 10 digits';
+    if (!empty($guardian_phone) && !preg_match('/^[0-9]{10}$/', $guardian_phone)) $errors[] = 'Guardian phone must be exactly 10 digits';
     if (empty($gender)) $errors[] = 'Gender is required';
-    if (empty($password)) $errors[] = 'Password is required';
-    else {
-        $pwErrors = validatePassword($password);
-        if ($pwErrors) $errors[] = 'Password must contain: ' . implode(', ', $pwErrors);
-    }
-    if ($password !== $confirm) $errors[] = 'Passwords do not match';
+    if (empty($_FILES['photo']['name'])) $errors[] = 'Photo is required';
     if (!$agree) $errors[] = 'You must agree to the terms';
 
     if (count($errors) === 0) {
-        if (!empty($_FILES['photo']['name'])) {
-            $allowed = ['jpg', 'jpeg', 'png', 'gif'];
-            $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
-            if (!in_array($ext, $allowed)) $errors[] = 'Photo must be jpg, jpeg, png, or gif';
-            elseif ($_FILES['photo']['size'] > 2 * 1024 * 1024) $errors[] = 'Photo must be less than 2MB';
-            else { $photo = uniqid('stu_') . '.' . $ext; move_uploaded_file($_FILES['photo']['tmp_name'], __DIR__ . '/../uploads/' . $photo); }
-        }
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowed)) $errors[] = 'Photo must be jpg, jpeg, png, or gif';
+        elseif ($_FILES['photo']['size'] > 2 * 1024 * 1024) $errors[] = 'Photo must be less than 2MB';
+        else { $photo = uniqid('stu_') . '.' . $ext; move_uploaded_file($_FILES['photo']['tmp_name'], __DIR__ . '/../uploads/' . $photo); }
     }
 
     if (count($errors) === 0) {
@@ -63,6 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($check->fetch()) {
                 $error = 'Roll Number or Email already registered';
             } else {
+                $sets = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghjkmnpqrstuvwxyz', '23456789', '!@#$%&*?'];
+                $password = '';
+                foreach ($sets as $set) $password .= $set[random_int(0, strlen($set) - 1)];
+                $all = implode('', $sets);
+                while (strlen($password) < 12) $password .= $all[random_int(0, strlen($all) - 1)];
+                $chars = str_split($password);
+                for ($i = count($chars) - 1; $i > 0; $i--) { $j = random_int(0, $i); [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]]; }
+                $password = implode('', $chars);
+
                 db()->beginTransaction();
                 $hashed = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = db()->prepare("INSERT INTO users (username, email, password, role, status, approved) VALUES (?, ?, ?, 'student', 1, 0)");
@@ -75,7 +78,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 db()->commit();
 
                 addNotification($userId, 'Registration Submitted', 'Your registration has been submitted for admin approval.', 'info');
-                $success = 'Registration submitted! An admin will review and approve your account. You will be able to login once approved.';
+
+                $loginUrl = BASE_URL . '/auth/login.php?role=student';
+                $body = '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto">'
+                      . '<h2 style="color:#0d6efd">Welcome to ' . SITE_NAME . '</h2>'
+                      . '<p>Hello <strong>' . htmlspecialchars($name) . '</strong>,</p>'
+                      . '<p>Your account has been registered successfully. Here are your login credentials:</p>'
+                      . '<table cellpadding="8" style="background:#f8f9fa;border-radius:8px;width:100%">'
+                      . '<tr><td><strong>Login ID (Roll No):</strong></td><td>' . htmlspecialchars($roll_no) . '</td></tr>'
+                      . '<tr><td><strong>Email:</strong></td><td>' . htmlspecialchars($email) . '</td></tr>'
+                      . '<tr><td><strong>Password:</strong></td><td style="font-family:monospace;font-size:16px"><strong>' . htmlspecialchars($password) . '</strong></td></tr>'
+                      . '</table>'
+                      . '<p style="margin-top:16px"><a href="' . $loginUrl . '" style="background:#198754;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none">Login Now</a></p>'
+                      . '<p style="color:#6c757d;font-size:13px">Note: You can login once an admin approves your account.</p>'
+                      . '</div>';
+
+                if (sendMail($email, 'Your Hostel Account Password - ' . SITE_NAME, $body)) {
+                    $success = 'Registration submitted! Your password has been sent to your email. An admin will review and approve your account.';
+                } else {
+                    $success = 'Registration submitted! However, we could not email your password. Please contact the admin office to get your login credentials.';
+                }
             }
         } catch (Exception $e) {
             db()->rollBack();
@@ -94,13 +116,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Student Registration - <?= SITE_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=6">
 </head>
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="register-card">
+<body>
+    <div class="auth-shell">
+        <aside class="auth-brand d-none d-lg-flex">
+            <div>
+                <div class="brand-logo mb-3"><i class="bi bi-building"></i></div>
+                <h4 class="fw-bold mb-1"><?= SITE_NAME ?></h4>
+                <p class="text-white-50 small mb-0">New student? You're in the right place.</p>
+            </div>
+            <div class="my-auto">
+                <h1>Join your campus home.</h1>
+                <p class="lead-text mt-3">Register once — your account password will be emailed to you after admin approval.</p>
+                <div class="mt-4">
+                    <div class="auth-feature"><i class="bi bi-person-check"></i> Simple one-page registration</div>
+                    <div class="auth-feature"><i class="bi bi-envelope-check"></i> Secure password by email</div>
+                    <div class="auth-feature"><i class="bi bi-shield-check"></i> Admin-verified accounts</div>
+                </div>
+            </div>
+            <div class="small text-white-50">&copy; <?= date('Y') ?> <?= SITE_NAME ?></div>
+        </aside>
+        <main class="auth-form-side w-100">
+                <div class="login-card" style="max-width:760px">
                     <div class="card shadow-lg border-0 rounded-4">
                         <div class="card-body p-5">
                             <div class="text-center mb-4">
@@ -141,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                        <input type="text" name="phone" class="form-control" value="<?= sanitize($_POST['phone'] ?? '') ?>" required>
+                                        <input type="text" name="phone" class="form-control" value="<?= sanitize($_POST['phone'] ?? '') ?>" required maxlength="10" pattern="[0-9]{10}" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">Gender <span class="text-danger">*</span></label>
@@ -162,8 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Photo</label>
-                                        <input type="file" name="photo" class="form-control" accept="image/jpeg,image/png,image/gif">
+                                        <label class="form-label">Photo <span class="text-danger">*</span></label>
+                                        <input type="file" name="photo" class="form-control" accept="image/jpeg,image/png,image/gif" required>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Address</label>
@@ -175,11 +213,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
                                         <label class="form-label">Course</label>
-                                        <input type="text" name="course" class="form-control" value="<?= sanitize($_POST['course'] ?? '') ?>">
+                                        <select name="course" class="form-select">
+                                            <option value="">Select</option>
+                                            <?php foreach (['B.Tech','B.E.','B.Sc','B.Com','BBA','BCA','B.A.','B.Pharm','M.Tech','M.E.','M.Sc','M.Com','MBA','MCA','M.A.','M.Pharm','Ph.D'] as $c): ?>
+                                            <option value="<?= $c ?>" <?= ($_POST['course'] ?? '') === $c ? 'selected' : '' ?>><?= $c ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Department</label>
-                                        <input type="text" name="department" class="form-control" value="<?= sanitize($_POST['department'] ?? '') ?>">
+                                        <select name="department" class="form-select">
+                                            <option value="">Select</option>
+                                            <?php foreach (['Computer Science & Engineering','Information Technology','Electronics & Communication','Electrical & Electronics','Mechanical Engineering','Civil Engineering','Artificial Intelligence & Data Science','Biotechnology','Chemical Engineering','Pharmacy','MMT','Commerce','Business Administration','Arts & Humanities','Science'] as $d): ?>
+                                            <option value="<?= $d ?>" <?= ($_POST['department'] ?? '') === $d ? 'selected' : '' ?>><?= $d ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">Year</label>
@@ -209,15 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Guardian Phone</label>
-                                        <input type="text" name="guardian_phone" class="form-control" value="<?= sanitize($_POST['guardian_phone'] ?? '') ?>">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Emergency Contact Name</label>
-                                        <input type="text" name="emergency_contact_name" class="form-control" value="<?= sanitize($_POST['emergency_contact_name'] ?? '') ?>">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Emergency Contact Phone</label>
-                                        <input type="text" name="emergency_contact" class="form-control" value="<?= sanitize($_POST['emergency_contact'] ?? '') ?>">
+                                        <input type="text" name="guardian_phone" class="form-control" value="<?= sanitize($_POST['guardian_phone'] ?? '') ?>" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Medical Information</label>
@@ -225,17 +265,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </div>
                                 </div>
 
-                                <h6 class="fw-bold text-info mb-3"><i class="bi bi-lock"></i> Account Security</h6>
-                                <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Password <span class="text-danger">*</span></label>
-                                        <input type="password" name="password" class="form-control" required minlength="8">
-                                        <div class="form-text">Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                        <input type="password" name="confirm_password" class="form-control" required minlength="8">
-                                    </div>
+                                <h6 class="fw-bold text-info mb-3"><i class="bi bi-envelope"></i> Account Details</h6>
+                                <div class="alert alert-info py-2 small">
+                                    <i class="bi bi-info-circle"></i> A secure password (uppercase, lowercase, number &amp; symbol) will be generated automatically and sent to your email after successful registration.
                                 </div>
 
                                 <div class="form-check mb-4">
@@ -261,8 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+        </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

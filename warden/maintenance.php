@@ -299,7 +299,7 @@ if ($filter_priority !== '') {
 
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
-$totalStmt = db()->prepare("SELECT COUNT(*) FROM maintenance_requests mr $whereClause");
+$totalStmt = db()->prepare("SELECT COUNT(*) FROM maintenance_requests mr LEFT JOIN students s ON s.id=mr.student_id $whereClause");
 $totalStmt->execute($params);
 $totalRows = $totalStmt->fetchColumn();
 

@@ -3,7 +3,7 @@
         <div class="row g-4">
             <div class="col-lg-4">
                 <h5 class="fw-bold mb-3"><i class="bi bi-building text-primary"></i> <?= SITE_NAME ?></h5>
-                <p class="small text-secondary mb-3">Providing safe, comfortable, and affordable accommodation for students since 2010. We are committed to creating a home-like environment that fosters academic excellence.</p>
+                <p class="small text-secondary mb-3">The official hostel portal of YSR Engineering College of YVU, Proddatur — providing safe, comfortable, and affordable accommodation for students. We are committed to creating a home-like environment that fosters academic excellence.</p>
                 <div class="d-flex gap-2">
                     <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="social-link"><i class="bi bi-twitter-x"></i></a>

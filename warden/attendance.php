@@ -195,7 +195,7 @@ $sTotal = $sum['total'] ?: 0; $sPresent = $sum['present'] ?: 0; $sAbsent = $sum[
                             <span class="badge bg-info"><?= $exStatus ?: 'N/A' ?></span>
                         <?php else: ?>
                             <div class="d-flex flex-wrap gap-1">
-                                <?php $statuses = ['Present', 'Absent', 'Late', 'On Leave', 'Medical Leave', 'Weekend Leave', 'Outside Hostel']; ?>
+                                <?php $statuses = ['Present', 'Absent', 'Late', 'On Leave', 'Medical Leave']; ?>
                                 <?php foreach ($statuses as $st): ?>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="status[<?= $s['id'] ?>]" value="<?= $st ?>" <?= $st === 'Present' ? 'checked' : '' ?> id="s<?= $s['id'] ?>_<?= $st ?>">

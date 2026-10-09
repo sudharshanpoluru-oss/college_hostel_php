@@ -22,9 +22,11 @@ if ($amount <= 0) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $utr = sanitize($_POST['utr'] ?? '');
+    $utr = strtoupper(sanitize($_POST['utr'] ?? ''));
     if (empty($utr)) {
         $error = 'Please enter your UPI transaction reference (UTR) number.';
+    } elseif (!preg_match('/^[A-Z0-9]{12}$/', $utr)) {
+        $error = 'Invalid UTR. A real UPI transaction reference is exactly 12 letters and digits (e.g. 402312345678). Please copy it from your UPI app.';
     } else {
         $new_paid = $fee['paid_amount'] + $amount;
         $status = $new_paid >= $fee['total_fee'] ? 'Paid' : 'Partial';
@@ -32,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = db()->prepare("UPDATE fees SET paid_amount = ?, payment_mode = 'UPI', receipt_no = ?, transaction_id = ?, payment_date = CURDATE(), status = ? WHERE id = ?");
         $stmt->execute([$new_paid, $utr, 'UPI_' . $utr, $status, $fee_id]);
 
-        $stmt = db()->prepare("INSERT INTO activity_log (user_type, user_id, action, details) VALUES ('student', ?, 'Fee Payment', ?)");
+        $stmt = db()->prepare("INSERT INTO activity_log (user_id, action, description) VALUES (?, 'Fee Payment', ?)");
         $stmt->execute([$_SESSION['user_id'], 'UPI payment of ₹' . number_format($amount, 2) . ' for fee #' . $fee_id]);
 
         redirect(BASE_URL . '/student/fees.php?payment=success');
@@ -91,7 +93,7 @@ require_once __DIR__ . '/../includes/student-header.php';
 
                     <form method="post">
                         <label class="form-label fw-semibold">Already paid? Enter UTR / Transaction Ref:</label>
-                        <input type="text" name="utr" class="form-control form-control-lg mb-3" placeholder="e.g. HDFC123456789" required>
+                        <input type="text" name="utr" class="form-control form-control-lg mb-3" placeholder="e.g. 402312345678" maxlength="12" pattern="[A-Za-z0-9]{12}" title="UTR is exactly 12 letters and digits" required>
                         <button type="submit" class="btn btn-success w-100">Confirm Payment</button>
                     </form>
 

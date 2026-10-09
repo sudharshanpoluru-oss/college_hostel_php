@@ -32,7 +32,7 @@ function createBackup() {
     $filepath = $backupDir . '/' . $filename;
 
     $tables = db()->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-    $output = "-- Hostel Management System Backup\n-- Date: " . date('Y-m-d H:i:s') . "\n\n";
+    $output = "-- " . SITE_NAME . " Backup\n-- Date: " . date('Y-m-d H:i:s') . "\n\n";
     $output .= "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "`;\nUSE `" . DB_NAME . "`;\n\n";
 
     foreach ($tables as $table) {
@@ -207,7 +207,7 @@ $diskInfo = getDiskSpace();
                     <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
                 </div>
                 <h5 class="fw-bold">Create Backup</h5>
-                <p class="text-muted small mb-3">Generate a full database backup of the Hostel Management System.</p>
+                <p class="text-muted small mb-3">Generate a full database backup of the <?= SITE_NAME ?> hostel management portal.</p>
                 <form method="post" action="?action=create_backup">
                     <input type="hidden" name="action" value="create_backup">
                     <button type="submit" class="btn btn-primary w-100 action-btn">

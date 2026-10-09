@@ -62,6 +62,31 @@ $amenities = [
     </div>
 </section>
 
+<section class="bg-white pt-5 pb-0">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-2">Take a Look Around</h2>
+        <div class="section-divider"></div>
+        <p class="text-center text-muted mb-4">Real glimpses of our hostel facilities</p>
+        <div class="row g-3">
+            <?php
+            $amenityPhotos = [
+                ['sample-library.jpg', 'Library'],
+                ['sample-gym.jpg', 'Gym'],
+                ['sample-common-room.jpg', 'Common Room'],
+                ['sample-dining.jpg', 'Dining Hall'],
+            ];
+            foreach ($amenityPhotos as $ap): ?>
+            <div class="col-md-3 col-6">
+                <div class="gallery-item">
+                    <img src="<?= BASE_URL ?>/uploads/<?= $ap[0] ?>" class="w-100" style="height: 180px; object-fit: cover;" alt="<?= $ap[1] ?>" loading="lazy">
+                    <div class="p-2"><small class="fw-medium"><?= $ap[1] ?></small></div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
 <section class="bg-white py-5">
     <div class="container">
         <div class="row g-4">

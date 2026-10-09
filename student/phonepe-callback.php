@@ -62,7 +62,7 @@ if ($code === 'PAYMENT_SUCCESS' && $merchantTransactionId) {
                     $stmt = db()->prepare("UPDATE fees SET paid_amount = ?, payment_mode = 'Online', receipt_no = ?, transaction_id = ?, payment_date = CURDATE(), status = ? WHERE id = ?");
                     $stmt->execute([$new_paid, $merchantTransactionId, 'PHONEPE_' . $transactionId, $status, $fee_id]);
 
-                    $stmt = db()->prepare("INSERT INTO activity_log (user_type, user_id, action, details) VALUES ('student', ?, 'Fee Payment', ?)");
+                    $stmt = db()->prepare("INSERT INTO activity_log (user_id, action, description) VALUES (?, 'Fee Payment', ?)");
                     $stmt->execute([$_SESSION['user_id'], 'PhonePe payment of ₹' . number_format($fee['due_amount'], 2) . ' for fee #' . $fee_id]);
 
                     redirect(BASE_URL . '/student/fees.php?payment=success');

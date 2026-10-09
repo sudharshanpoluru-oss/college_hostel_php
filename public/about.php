@@ -7,7 +7,7 @@ include __DIR__ . '/../includes/header.php';
 <section class="bg-primary text-white py-5">
     <div class="container text-center">
         <h1 class="display-4 fw-bold">About <?= SITE_NAME ?></h1>
-        <p class="lead">Providing quality accommodation for students since 2010</p>
+        <p class="lead">Hostels of YSR Engineering College of YVU, Proddatur — a home for scholars since 2010</p>
     </div>
 </section>
 
@@ -15,15 +15,17 @@ include __DIR__ . '/../includes/header.php';
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="fw-bold">Welcome to Our Hostel</h2>
-                <p><?= SITE_NAME ?> is a premier student accommodation facility dedicated to providing a comfortable, safe, and supportive living environment for students. Located in the heart of the city, our hostel offers easy access to major educational institutions, libraries, and recreational areas.</p>
+                <h2 class="fw-bold">Welcome to Our Hostels</h2>
+                <p><?= SITE_NAME ?> is a premier student accommodation facility dedicated to providing a comfortable, safe, and supportive living environment for students. Located at Proddatur in Kadapa district, Andhra Pradesh, our hostels offer easy access to the college campus, libraries, and recreational areas.</p>
                 <p>We understand the needs of students and strive to create a home-like atmosphere where academic excellence can flourish. With modern amenities, dedicated staff, and a vibrant community, we ensure that every student feels welcomed and supported throughout their academic journey.</p>
             </div>
             <div class="col-lg-6">
-                <div class="bg-light p-4 rounded shadow-sm">
-                    <i class="bi bi-building text-primary" style="font-size: 4rem;"></i>
-                    <h4 class="mt-2">Our Legacy</h4>
-                    <p class="text-muted">Over 15 years of excellence in student accommodation, hosting thousands of students from diverse backgrounds and disciplines.</p>
+                <div class="rounded shadow-sm overflow-hidden h-100">
+                    <img src="<?= BASE_URL ?>/uploads/sample-campus-building.jpg" class="w-100" style="height: 260px; object-fit: cover;" alt="YSR Engineering College of YVU Hostel Campus" loading="lazy">
+                    <div class="p-4 bg-white">
+                        <h4 class="fw-bold mb-2"><i class="bi bi-building text-primary me-2"></i>Our Legacy</h4>
+                        <p class="text-muted mb-0">Over 15 years of excellence in student accommodation, hosting thousands of students from diverse backgrounds and disciplines.</p>
+                    </div>
                 </div>
             </div>
         </div>

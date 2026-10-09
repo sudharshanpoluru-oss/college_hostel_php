@@ -3,42 +3,42 @@ $title = 'Dashboard';
 require_once __DIR__ . '/../includes/warden-header.php';
 
 $hostelType = getWardenHostelType();
-$hostelFilter = $hostelType ? " AND s.hostel_type = '$hostelType'" : '';
-$roomFilter = $hostelType ? " AND r.hostel_type = '$hostelType'" : '';
+if ($hostelType && !in_array($hostelType, ['boys', 'girls'])) $hostelType = null;
+$useHostelFilter = $hostelType !== null;
 
 // Today's attendance stats
-$todayPresentStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Present' $hostelFilter");
-$todayPresentStmt->execute();
+$todayPresentStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Present'" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$todayPresentStmt->execute($useHostelFilter ? [$hostelType] : []);
 $todayPresent = (int)$todayPresentStmt->fetchColumn();
 
-$todayAbsentStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Absent' $hostelFilter");
-$todayAbsentStmt->execute();
+$todayAbsentStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Absent'" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$todayAbsentStmt->execute($useHostelFilter ? [$hostelType] : []);
 $todayAbsent = (int)$todayAbsentStmt->fetchColumn();
 
-$todayLateStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Late' $hostelFilter");
-$todayLateStmt->execute();
+$todayLateStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Late'" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$todayLateStmt->execute($useHostelFilter ? [$hostelType] : []);
 $todayLate = (int)$todayLateStmt->fetchColumn();
 
-$todayLeaveStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Leave' $hostelFilter");
-$todayLeaveStmt->execute();
+$todayLeaveStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = CURDATE() AND attendance.status = 'Leave'" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$todayLeaveStmt->execute($useHostelFilter ? [$hostelType] : []);
 $todayLeave = (int)$todayLeaveStmt->fetchColumn();
 
 $totalToday = $todayPresent + $todayAbsent + $todayLate + $todayLeave;
 $attPct = $totalToday > 0 ? round(($todayPresent / $totalToday) * 100, 1) : 0;
 
 // Pending leaves
-$pendingLeavesStmt = db()->prepare("SELECT COUNT(*) FROM leaves JOIN students s ON s.id = leaves.student_id WHERE leaves.status = 'Pending' $hostelFilter");
-$pendingLeavesStmt->execute();
+$pendingLeavesStmt = db()->prepare("SELECT COUNT(*) FROM leaves JOIN students s ON s.id = leaves.student_id WHERE leaves.status = 'Pending'" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$pendingLeavesStmt->execute($useHostelFilter ? [$hostelType] : []);
 $pendingLeaves = (int)$pendingLeavesStmt->fetchColumn();
 
 // Pending complaints
-$pendingComplaintsStmt = db()->prepare("SELECT COUNT(*) FROM complaints JOIN students s ON s.id = complaints.student_id WHERE complaints.status IN ('New','Under Inspection','In Progress') $hostelFilter");
-$pendingComplaintsStmt->execute();
+$pendingComplaintsStmt = db()->prepare("SELECT COUNT(*) FROM complaints JOIN students s ON s.id = complaints.student_id WHERE complaints.status IN ('New','Under Inspection','In Progress')" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$pendingComplaintsStmt->execute($useHostelFilter ? [$hostelType] : []);
 $pendingComplaints = (int)$pendingComplaintsStmt->fetchColumn();
 
 // Today's visitors
-$todayVisitorsStmt = db()->prepare("SELECT COUNT(*) FROM visitor_logs JOIN students s ON s.id = visitor_logs.student_id WHERE DATE(visitor_logs.check_in) = CURDATE() $hostelFilter");
-$todayVisitorsStmt->execute();
+$todayVisitorsStmt = db()->prepare("SELECT COUNT(*) FROM visitor_logs JOIN students s ON s.id = visitor_logs.student_id WHERE DATE(visitor_logs.check_in) = CURDATE()" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$todayVisitorsStmt->execute($useHostelFilter ? [$hostelType] : []);
 $todayVisitors = (int)$todayVisitorsStmt->fetchColumn();
 
 // Vacant beds
@@ -47,8 +47,8 @@ $vacantBedsStmt->execute();
 $vacantBeds = (int)$vacantBedsStmt->fetchColumn();
 
 // Escalated complaints
-$escapedComplaintsStmt = db()->prepare("SELECT COUNT(*) FROM complaints JOIN students s ON s.id = complaints.student_id WHERE complaints.escalated_to IS NOT NULL $hostelFilter");
-$escapedComplaintsStmt->execute();
+$escapedComplaintsStmt = db()->prepare("SELECT COUNT(*) FROM complaints JOIN students s ON s.id = complaints.student_id WHERE complaints.escalated_to IS NOT NULL" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+$escapedComplaintsStmt->execute($useHostelFilter ? [$hostelType] : []);
 $escalatedComplaints = (int)$escapedComplaintsStmt->fetchColumn();
 
 // Maintenance requests
@@ -75,11 +75,11 @@ $recentComplaintsStmt = db()->prepare("
     SELECT c.*, s.name, s.roll_no
     FROM complaints c
     JOIN students s ON s.id = c.student_id
-    WHERE 1=1 $hostelFilter
+    WHERE 1=1" . ($useHostelFilter ? " AND s.hostel_type = ?" : "") . "
     ORDER BY c.created_at DESC
     LIMIT 5
 ");
-$recentComplaintsStmt->execute();
+$recentComplaintsStmt->execute($useHostelFilter ? [$hostelType] : []);
 $recentComplaints = $recentComplaintsStmt->fetchAll();
 
 // Recent leaves for table
@@ -87,11 +87,11 @@ $recentLeavesStmt = db()->prepare("
     SELECT l.*, s.name, s.roll_no
     FROM leaves l
     JOIN students s ON s.id = l.student_id
-    WHERE 1=1 $hostelFilter
+    WHERE 1=1" . ($useHostelFilter ? " AND s.hostel_type = ?" : "") . "
     ORDER BY l.applied_at DESC
     LIMIT 5
 ");
-$recentLeavesStmt->execute();
+$recentLeavesStmt->execute($useHostelFilter ? [$hostelType] : []);
 $recentLeaves = $recentLeavesStmt->fetchAll();
 
 // Weekly attendance trend (last 7 days)
@@ -101,11 +101,11 @@ $weeklyAbsent = [];
 for ($i = 6; $i >= 0; $i--) {
     $day = date('Y-m-d', strtotime("-{$i} day"));
     $weeklyLabels[] = date('D', strtotime("-{$i} day"));
-    $pStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = ? AND attendance.status = 'Present' $hostelFilter");
-    $pStmt->execute([$day]);
+    $pStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = ? AND attendance.status = 'Present'" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+    $pStmt->execute($useHostelFilter ? [$day, $hostelType] : [$day]);
     $weeklyPresent[] = (int)$pStmt->fetchColumn();
-    $aStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = ? AND attendance.status = 'Absent' $hostelFilter");
-    $aStmt->execute([$day]);
+    $aStmt = db()->prepare("SELECT COUNT(*) FROM attendance JOIN students s ON s.id = attendance.student_id WHERE attendance.date = ? AND attendance.status = 'Absent'" . ($useHostelFilter ? " AND s.hostel_type = ?" : ""));
+    $aStmt->execute($useHostelFilter ? [$day, $hostelType] : [$day]);
     $weeklyAbsent[] = (int)$aStmt->fetchColumn();
 }
 

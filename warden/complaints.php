@@ -2,8 +2,7 @@
 $title = 'Complaints';
 require_once __DIR__ . '/../includes/warden-header.php';
 
-$hostelType = getWardenHostelType();
-$hostelFilter = $hostelType ? " AND s.hostel_type = '$hostelType'" : '';
+$hostelFilter = getHostelFilterCondition('s');
 
 $action = $_GET['action'] ?? 'list';
 $id     = (int)($_GET['id'] ?? 0);

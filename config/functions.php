@@ -153,7 +153,8 @@ function getWardenHostelType() {
     try {
         $stmt = db()->prepare("SELECT hostel_type FROM wardens WHERE user_id = ?");
         $stmt->execute([$_SESSION['user_id']]);
-        return $stmt->fetchColumn();
+        $type = $stmt->fetchColumn();
+        return in_array($type, ['boys', 'girls']) ? $type : null;
     } catch (Exception $e) {
         return null;
     }
@@ -192,5 +193,6 @@ function getHostelFilterCondition($alias = 's') {
     if (!isWarden()) return '';
     $hostelType = getWardenHostelType();
     if (!$hostelType) return '';
+    if (!in_array($hostelType, ['boys', 'girls'])) return '';
     return " AND $alias.hostel_type = '$hostelType'";
 }

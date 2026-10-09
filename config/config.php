@@ -2,7 +2,7 @@
 session_start();
 
 define('BASE_URL', 'http://localhost/hostel');
-define('SITE_NAME', 'Hostel Management System');
+define('SITE_NAME', 'YSR Engineering College of YVU - Hostel');
 
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
@@ -21,3 +21,9 @@ define('PHONEPE_MERCHANT_ID', 'PGTESTPAYUAT86');
 define('PHONEPE_SALT_KEY', '96434309-7796-489d-8924-ab56988a6076');
 define('PHONEPE_SALT_INDEX', 1);
 define('PHONEPE_ENV', 'UAT'); // 'UAT' or 'PROD'
+
+// Gmail SMTP - create an App Password at https://myaccount.google.com/apppasswords
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 465);
+define('SMTP_USER', 'yourgmail@gmail.com');
+define('SMTP_PASS', 'your_app_password');

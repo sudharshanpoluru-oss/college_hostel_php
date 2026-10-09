@@ -2,6 +2,10 @@
 require_once __DIR__ . '/session.php';
 requireStudent();
 $title ??= 'Dashboard';
+$currentPage = basename($_SERVER['PHP_SELF']);
+$navActive = function (string $file) use ($currentPage): string {
+    return $file === $currentPage ? 'active' : '';
+};
 $notifCount = getUnreadNotificationCount($_SESSION['user_id']);
 $notifications = getNotifications($_SESSION['user_id'], 5);
 ob_start();
@@ -13,7 +17,7 @@ ob_start();
     <title><?= $title ?> - <?= SITE_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=6">
 </head>
 <body>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -78,26 +82,26 @@ ob_start();
 </nav>
 <div class="sidebar" id="studentSidebar">
     <div class="sidebar-section">Main</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('dashboard.php') ?>" href="<?= BASE_URL ?>/student/dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a></div>
     <div class="sidebar-section">Accommodation</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/my-room.php"><i class="bi bi-door-open"></i> My Room</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/room-change.php"><i class="bi bi-arrow-left-right"></i> Change Room</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('my-room.php') ?>" href="<?= BASE_URL ?>/student/my-room.php"><i class="bi bi-door-open"></i> My Room</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('room-change.php') ?>" href="<?= BASE_URL ?>/student/room-change.php"><i class="bi bi-arrow-left-right"></i> Change Room</a></div>
     <div class="sidebar-section">Finance</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/fees.php"><i class="bi bi-cash-coin"></i> Fees</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('fees.php') ?>" href="<?= BASE_URL ?>/student/fees.php"><i class="bi bi-cash-coin"></i> Fees</a></div>
     <div class="sidebar-section">Management</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/attendance.php"><i class="bi bi-calendar-check"></i> Attendance</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/complaints.php"><i class="bi bi-exclamation-triangle"></i> Complaints</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/leave.php"><i class="bi bi-box-arrow-right"></i> Leave</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/vacate.php"><i class="bi bi-house-x"></i> Vacate</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/maintenance.php"><i class="bi bi-tools"></i> Maintenance</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/emergency.php"><i class="bi bi-exclamation-octagon"></i> Emergency</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('attendance.php') ?>" href="<?= BASE_URL ?>/student/attendance.php"><i class="bi bi-calendar-check"></i> Attendance</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('complaints.php') ?>" href="<?= BASE_URL ?>/student/complaints.php"><i class="bi bi-exclamation-triangle"></i> Complaints</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('leave.php') ?>" href="<?= BASE_URL ?>/student/leave.php"><i class="bi bi-box-arrow-right"></i> Leave</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('vacate.php') ?>" href="<?= BASE_URL ?>/student/vacate.php"><i class="bi bi-house-x"></i> Vacate</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('maintenance.php') ?>" href="<?= BASE_URL ?>/student/maintenance.php"><i class="bi bi-tools"></i> Maintenance</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('emergency.php') ?>" href="<?= BASE_URL ?>/student/emergency.php"><i class="bi bi-exclamation-octagon"></i> Emergency</a></div>
     <div class="sidebar-section">Services</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/notices.php"><i class="bi bi-megaphone"></i> Notices</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/mess.php"><i class="bi bi-cup-hot"></i> Mess Menu</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/events.php"><i class="bi bi-calendar-event"></i> Events</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('notices.php') ?>" href="<?= BASE_URL ?>/student/notices.php"><i class="bi bi-megaphone"></i> Notices</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('mess.php') ?>" href="<?= BASE_URL ?>/student/mess.php"><i class="bi bi-cup-hot"></i> Mess Menu</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('events.php') ?>" href="<?= BASE_URL ?>/student/events.php"><i class="bi bi-calendar-event"></i> Events</a></div>
     <div class="sidebar-section">Account</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/notifications.php"><i class="bi bi-bell"></i> Notifications</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/student/profile.php"><i class="bi bi-person"></i> Profile</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('notifications.php') ?>" href="<?= BASE_URL ?>/student/notifications.php"><i class="bi bi-bell"></i> Notifications</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('profile.php') ?>" href="<?= BASE_URL ?>/student/profile.php"><i class="bi bi-person"></i> Profile</a></div>
 </div>
 <main class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -112,10 +116,6 @@ ob_start();
         </div>
     </div>
     <?= displayAlert() ?>
-<style>
-.main-content { margin-left: 250px; margin-top: 57px; padding: 1.5rem 2rem; min-height: calc(100vh - 57px); width: calc(100% - 250px); max-width: 100%; overflow-x: hidden; }
-@media (max-width: 768px) { .main-content { margin-left: 0; padding: 1rem; width: 100%; } }
-</style>
 <script>
 function toggleSidebar() {
     document.getElementById('studentSidebar').classList.toggle('show');

@@ -93,21 +93,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="bi bi-geo-alt text-primary me-3" style="font-size: 1.5rem;"></i>
                             <div>
                                 <h6 class="fw-bold mb-1">Address</h6>
-                                <p class="mb-0 text-muted">Hostel Campus, University Road,<br>City - 110001, India</p>
+                                <p class="mb-0 text-muted">YSR Engineering College of YVU, Korrapadu Road,<br>Proddatur, Kadapa District - 516360, Andhra Pradesh</p>
                             </div>
                         </div>
                         <div class="d-flex mb-3">
                             <i class="bi bi-telephone text-primary me-3" style="font-size: 1.5rem;"></i>
                             <div>
                                 <h6 class="fw-bold mb-1">Phone</h6>
-                                <p class="mb-0 text-muted">+91 9876543210</p>
+                                <p class="mb-0 text-muted">+91 8564 254770</p>
                             </div>
                         </div>
                         <div class="d-flex">
                             <i class="bi bi-envelope text-primary me-3" style="font-size: 1.5rem;"></i>
                             <div>
                                 <h6 class="fw-bold mb-1">Email</h6>
-                                <p class="mb-0 text-muted">info@hostel.com</p>
+                                <p class="mb-0 text-muted">principal.yvuce@gmail.com</p>
                             </div>
                         </div>
                     </div>

@@ -269,7 +269,7 @@ function collectTimelineEvents($student_id, $filter_type = '', $date_from = '', 
         if ($date_to) { $where .= " AND mr.created_at <= ?"; $maint_params[] = $date_to . ' 23:59:59'; }
         $stmt = db()->prepare(
             "SELECT mr.id, mr.created_at AS event_date, 'maintenance' AS type, 
-             CONCAT('Maintenance: ', mr.category) AS title, 
+             CONCAT('Maintenance: ', mr.issue_type) AS title, 
              CONCAT('Status: ', mr.status, ' | Priority: ', mr.priority, ' | ', LEFT(mr.description, 100)) AS description, 
              mr.status FROM maintenance_requests mr WHERE mr.student_id = ?$where
              ORDER BY mr.created_at DESC"

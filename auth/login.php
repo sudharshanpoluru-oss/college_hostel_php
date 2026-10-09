@@ -67,13 +67,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Login - <?= SITE_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=6">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-5">
-                <div class="login-card">
+<body>
+    <div class="auth-shell">
+        <aside class="auth-brand d-none d-lg-flex">
+            <div>
+                <div class="brand-logo mb-3"><i class="bi bi-building"></i></div>
+                <h4 class="fw-bold mb-1"><?= SITE_NAME ?></h4>
+                <p class="text-white-50 small mb-0">Hostel administration, simplified.</p>
+            </div>
+            <div class="my-auto">
+                <h1>Your hostel, fully in sync.</h1>
+                <p class="lead-text mt-3">One portal for rooms, mess, fees and campus life — built for students, wardens and administrators alike.</p>
+                <div class="mt-4">
+                    <div class="auth-feature"><i class="bi bi-door-open"></i> Room allocations &amp; change requests</div>
+                    <div class="auth-feature"><i class="bi bi-calendar-check"></i> Daily attendance &amp; roll call</div>
+                    <div class="auth-feature"><i class="bi bi-cash-coin"></i> Transparent fee tracking</div>
+                    <div class="auth-feature"><i class="bi bi-megaphone"></i> Instant notices &amp; alerts</div>
+                </div>
+            </div>
+            <div class="small text-white-50">&copy; <?= date('Y') ?> <?= SITE_NAME ?></div>
+        </aside>
+        <main class="auth-form-side w-100">
+            <div class="login-card">
                     <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                         <div class="card-body p-5">
                             <div class="text-center mb-4">
@@ -160,8 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+        </main>
     </div>
     <script>
     function switchRole(role) {

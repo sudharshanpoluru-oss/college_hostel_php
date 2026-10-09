@@ -13,7 +13,9 @@ ALTER TABLE `students` ADD COLUMN IF NOT EXISTS `hostel_type` enum('boys','girls
 
 -- ============================================================
 -- 3. Maintenance requests table
+-- NOTE: Drops the v1 version (defined in migration.sql with different schema) and recreates
 -- ============================================================
+DROP TABLE IF EXISTS `maintenance_requests`;
 CREATE TABLE IF NOT EXISTS `maintenance_requests` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `student_id` int DEFAULT NULL,

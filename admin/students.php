@@ -186,10 +186,17 @@ if ($action === 'list' || !$action):
     <?php endif; ?>
 
     <table class="table table-striped table-bordered">
-        <thead><tr><th>Name</th><th>Roll No</th><th>Email</th><th>Phone</th><th>Course</th><th>Room</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Photo</th><th>Name</th><th>Roll No</th><th>Email</th><th>Phone</th><th>Course</th><th>Room</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
             <?php foreach ($students as $s): ?>
             <tr>
+                <td>
+                    <?php if ($s['photo']): ?>
+                    <img src="<?= BASE_URL ?>/uploads/<?= sanitize($s['photo']) ?>" alt="" class="rounded" style="width:40px;height:40px;object-fit:cover;">
+                    <?php else: ?>
+                    <i class="bi bi-person-circle fs-4 text-muted"></i>
+                    <?php endif; ?>
+                </td>
                 <td><?= sanitize($s['name']) ?></td>
                 <td><?= sanitize($s['roll_no']) ?></td>
                 <td><?= sanitize($s['email']) ?></td>

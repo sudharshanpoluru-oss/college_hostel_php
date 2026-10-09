@@ -351,7 +351,11 @@ if ($hasHostelType):
                                 </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($recentPayments)): ?>
-                                <tr><td colspan="4" class="text-center text-muted py-3">No recent payments</td></tr>
+                                <tr><td colspan="4"><div class="empty-state empty-state-sm">
+                                    <span class="empty-icon"><i class="bi bi-cash-stack"></i></span>
+                                    <div class="empty-title">No payments yet</div>
+                                    <div class="empty-text">Recent fee payments will appear here.</div>
+                                </div></td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -384,7 +388,11 @@ if ($hasHostelType):
                                 </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($recentComplaints)): ?>
-                                <tr><td colspan="4" class="text-center text-muted py-3">No recent complaints</td></tr>
+                                <tr><td colspan="4"><div class="empty-state empty-state-sm">
+                                    <span class="empty-icon"><i class="bi bi-inbox"></i></span>
+                                    <div class="empty-title">No complaints</div>
+                                    <div class="empty-text">Student complaints will appear here.</div>
+                                </div></td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -414,7 +422,11 @@ if ($hasHostelType):
                                 </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($recentAdmissions)): ?>
-                                <tr><td colspan="4" class="text-center text-muted py-3">No recent admissions</td></tr>
+                                <tr><td colspan="4"><div class="empty-state empty-state-sm">
+                                    <span class="empty-icon"><i class="bi bi-person-plus"></i></span>
+                                    <div class="empty-title">No admissions yet</div>
+                                    <div class="empty-text">Newly admitted students will appear here.</div>
+                                </div></td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>

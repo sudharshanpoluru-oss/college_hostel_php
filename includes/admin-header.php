@@ -2,6 +2,10 @@
 require_once __DIR__ . '/session.php';
 requireAdmin();
 $title ??= 'Dashboard';
+$currentPage = basename($_SERVER['PHP_SELF']);
+$navActive = function (string $file) use ($currentPage): string {
+    return $file === $currentPage ? 'active' : '';
+};
 $notifCount = getUnreadNotificationCount($_SESSION['user_id']);
 $notifications = getNotifications($_SESSION['user_id'], 5);
 ob_start();
@@ -13,7 +17,7 @@ ob_start();
     <title><?= $title ?> - <?= SITE_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=6">
 </head>
 <body>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -78,40 +82,40 @@ ob_start();
 </nav>
 <div class="sidebar" id="adminSidebar">
     <div class="sidebar-section">Main</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/students.php"><i class="bi bi-people"></i> Students</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('dashboard.php') ?>" href="<?= BASE_URL ?>/admin/dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('students.php') ?>" href="<?= BASE_URL ?>/admin/students.php"><i class="bi bi-people"></i> Students</a></div>
     <div class="sidebar-section">Accommodation</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/rooms.php"><i class="bi bi-door-open"></i> Rooms</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/allocations.php"><i class="bi bi-key"></i> Allocations</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/room-changes.php"><i class="bi bi-arrow-left-right"></i> Room Changes</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('rooms.php') ?>" href="<?= BASE_URL ?>/admin/rooms.php"><i class="bi bi-door-open"></i> Rooms</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('allocations.php') ?>" href="<?= BASE_URL ?>/admin/allocations.php"><i class="bi bi-key"></i> Allocations</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('room-changes.php') ?>" href="<?= BASE_URL ?>/admin/room-changes.php"><i class="bi bi-arrow-left-right"></i> Room Changes</a></div>
     <div class="sidebar-section">Finance</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/fees.php"><i class="bi bi-cash-coin"></i> Fees</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('fees.php') ?>" href="<?= BASE_URL ?>/admin/fees.php"><i class="bi bi-cash-coin"></i> Fees</a></div>
     <div class="sidebar-section">Management</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/wardens.php"><i class="bi bi-shield-check"></i> Wardens</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/attendance.php"><i class="bi bi-calendar-check"></i> Attendance</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/complaints.php"><i class="bi bi-exclamation-triangle"></i> Complaints</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/leaves.php"><i class="bi bi-box-arrow-right"></i> Leaves</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/maintenance.php"><i class="bi bi-tools"></i> Maintenance</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/emergency.php"><i class="bi bi-exclamation-octagon"></i> Emergency</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/vacate-requests.php"><i class="bi bi-house-x"></i> Vacate Requests</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/vacated-students.php"><i class="bi bi-archive"></i> Vacated</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('wardens.php') ?>" href="<?= BASE_URL ?>/admin/wardens.php"><i class="bi bi-shield-check"></i> Wardens</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('attendance.php') ?>" href="<?= BASE_URL ?>/admin/attendance.php"><i class="bi bi-calendar-check"></i> Attendance</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('complaints.php') ?>" href="<?= BASE_URL ?>/admin/complaints.php"><i class="bi bi-exclamation-triangle"></i> Complaints</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('leaves.php') ?>" href="<?= BASE_URL ?>/admin/leaves.php"><i class="bi bi-box-arrow-right"></i> Leaves</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('maintenance.php') ?>" href="<?= BASE_URL ?>/admin/maintenance.php"><i class="bi bi-tools"></i> Maintenance</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('emergency.php') ?>" href="<?= BASE_URL ?>/admin/emergency.php"><i class="bi bi-exclamation-octagon"></i> Emergency</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('vacate-requests.php') ?>" href="<?= BASE_URL ?>/admin/vacate-requests.php"><i class="bi bi-house-x"></i> Vacate Requests</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('vacated-students.php') ?>" href="<?= BASE_URL ?>/admin/vacated-students.php"><i class="bi bi-archive"></i> Vacated</a></div>
     <div class="sidebar-section">Operations</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/manage-staff.php"><i class="bi bi-people-fill"></i> Staff</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/notices.php"><i class="bi bi-megaphone"></i> Notices</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/mess.php"><i class="bi bi-cup-hot"></i> Mess Menu</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/events.php"><i class="bi bi-calendar-event"></i> Events</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/visitors.php"><i class="bi bi-person-badge"></i> Visitors</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('manage-staff.php') ?>" href="<?= BASE_URL ?>/admin/manage-staff.php"><i class="bi bi-people-fill"></i> Staff</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('notices.php') ?>" href="<?= BASE_URL ?>/admin/notices.php"><i class="bi bi-megaphone"></i> Notices</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('mess.php') ?>" href="<?= BASE_URL ?>/admin/mess.php"><i class="bi bi-cup-hot"></i> Mess Menu</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('events.php') ?>" href="<?= BASE_URL ?>/admin/events.php"><i class="bi bi-calendar-event"></i> Events</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('visitors.php') ?>" href="<?= BASE_URL ?>/admin/visitors.php"><i class="bi bi-person-badge"></i> Visitors</a></div>
     <div class="sidebar-section">Analytics</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/analytics.php"><i class="bi bi-graph-up"></i> Analytics</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/occupancy.php"><i class="bi bi-building"></i> Room Occupancy</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/search.php"><i class="bi bi-search"></i> Global Search</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('analytics.php') ?>" href="<?= BASE_URL ?>/admin/analytics.php"><i class="bi bi-graph-up"></i> Analytics</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('occupancy.php') ?>" href="<?= BASE_URL ?>/admin/occupancy.php"><i class="bi bi-building"></i> Room Occupancy</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('search.php') ?>" href="<?= BASE_URL ?>/admin/search.php"><i class="bi bi-search"></i> Global Search</a></div>
     <div class="sidebar-section">Reports</div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/reports.php"><i class="bi bi-file-text"></i> Reports</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/notifications.php"><i class="bi bi-bell"></i> Notifications</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/digital-id.php"><i class="bi bi-card-id"></i> Digital ID</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/student-timeline.php"><i class="bi bi-clock-history"></i> Student Timeline</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/backup.php"><i class="bi bi-cloud-arrow-down"></i> Backup</a></div>
-    <div class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/profile.php"><i class="bi bi-person"></i> Profile</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('reports.php') ?>" href="<?= BASE_URL ?>/admin/reports.php"><i class="bi bi-file-text"></i> Reports</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('notifications.php') ?>" href="<?= BASE_URL ?>/admin/notifications.php"><i class="bi bi-bell"></i> Notifications</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('digital-id.php') ?>" href="<?= BASE_URL ?>/admin/digital-id.php"><i class="bi bi-card-id"></i> Digital ID</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('student-timeline.php') ?>" href="<?= BASE_URL ?>/admin/student-timeline.php"><i class="bi bi-clock-history"></i> Student Timeline</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('backup.php') ?>" href="<?= BASE_URL ?>/admin/backup.php"><i class="bi bi-cloud-arrow-down"></i> Backup</a></div>
+    <div class="nav-item"><a class="nav-link <?= $navActive('profile.php') ?>" href="<?= BASE_URL ?>/admin/profile.php"><i class="bi bi-person"></i> Profile</a></div>
 </div>
 <main class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -126,10 +130,6 @@ ob_start();
         </div>
     </div>
     <?= displayAlert() ?>
-<style>
-.main-content { margin-left: 250px; margin-top: 57px; padding: 1.5rem 2rem; min-height: calc(100vh - 57px); width: calc(100% - 250px); max-width: 100%; overflow-x: hidden; }
-@media (max-width: 768px) { .main-content { margin-left: 0; padding: 1rem; width: 100%; } }
-</style>
 <script>
 function toggleSidebar() {
     document.getElementById('adminSidebar').classList.toggle('show');

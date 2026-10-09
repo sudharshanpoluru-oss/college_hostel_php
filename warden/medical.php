@@ -2,8 +2,7 @@
 $title = 'Medical Records';
 require_once __DIR__ . '/../includes/warden-header.php';
 
-$hostelType = getWardenHostelType();
-$hostelFilter = $hostelType ? " AND s.hostel_type = '$hostelType'" : '';
+$hostelFilter = getHostelFilterCondition('s');
 
 $action = $_GET['action'] ?? 'list';
 $page   = (int)($_GET['p'] ?? 1);
@@ -39,7 +38,7 @@ $pages = paginate($page, $perPage, $totalRows);
 
 $sql = "SELECT m.*, s.name AS student_name, s.roll_no FROM medical_records m JOIN students s ON s.id = m.student_id WHERE 1=1 $hostelFilter ORDER BY m.visit_date DESC, m.created_at DESC LIMIT $perPage OFFSET {$pages['offset']}";
 $records = db()->query($sql)->fetchAll();
-$students = db()->query("SELECT id, name, roll_no FROM students WHERE status = 'Active'" . ($hostelType ? " AND hostel_type='$hostelType'" : '') . " ORDER BY name")->fetchAll();
+$students = db()->query("SELECT s.id, s.name, s.roll_no FROM students s WHERE s.status = 'Active'" . getHostelFilterCondition('s') . " ORDER BY s.name")->fetchAll();
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">

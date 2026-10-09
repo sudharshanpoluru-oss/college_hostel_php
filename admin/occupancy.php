@@ -2,16 +2,10 @@
 $title = 'Room Occupancy';
 require_once __DIR__ . '/../includes/admin-header.php';
 
-$hostel_type = $_GET['hostel_type'] ?? '';
-$search      = trim($_GET['search'] ?? '');
+$search = trim($_GET['search'] ?? '');
 
 $conditions = [];
 $params = [];
-
-if ($hostel_type !== '' && in_array($hostel_type, ['Boys', 'Girls'])) {
-    $conditions[] = "EXISTS (SELECT 1 FROM room_allocations ra JOIN students s ON s.id = ra.student_id WHERE ra.room_id = r.id AND ra.status = 'Active' AND s.hostel_type = ?)";
-    $params[] = $hostel_type;
-}
 
 if ($search !== '') {
     $conditions[] = "r.room_no LIKE ?";
@@ -22,15 +16,19 @@ $sql = "SELECT r.*, (r.capacity - r.occupancy) as free_beds FROM rooms r";
 if ($conditions) {
     $sql .= " WHERE " . implode(' AND ', $conditions);
 }
-$sql .= " ORDER BY r.floor, r.room_no";
+$sql .= " ORDER BY r.hostel_type, r.floor, r.room_no";
 
 $stmt = db()->prepare($sql);
 $stmt->execute($params);
 $rooms = $stmt->fetchAll();
 
-$floors = [];
+$groups = [
+    'boys'  => ['title' => 'Boys Hostel',  'icon' => 'bi-gender-male',   'color' => 'primary',   'rooms' => []],
+    'girls' => ['title' => 'Girls Hostel', 'icon' => 'bi-gender-female', 'color' => 'danger',    'rooms' => []],
+];
 foreach ($rooms as $r) {
-    $floors[$r['floor']][] = $r;
+    $ht = in_array($r['hostel_type'] ?? '', ['boys', 'girls'], true) ? $r['hostel_type'] : 'boys';
+    $groups[$ht]['rooms'][] = $r;
 }
 
 $total_rooms = count($rooms);
@@ -98,76 +96,85 @@ $occupancy_pct = $total_capacity > 0 ? round(($total_occupancy / $total_capacity
         <div class="card-body">
             <form method="get" class="row g-2 align-items-end">
                 <div class="col-auto">
-                    <label class="form-label small mb-1">Hostel Type</label>
-                    <select name="hostel_type" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">All</option>
-                        <option value="Boys" <?= $hostel_type === 'Boys' ? 'selected' : '' ?>>Boys</option>
-                        <option value="Girls" <?= $hostel_type === 'Girls' ? 'selected' : '' ?>>Girls</option>
-                    </select>
-                </div>
-                <div class="col-auto">
                     <label class="form-label small mb-1">Search Room</label>
                     <input type="text" name="search" class="form-control form-control-sm" placeholder="Room number..." value="<?= sanitize($search) ?>">
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-sm btn-primary">Filter</button>
+                    <button class="btn btn-sm btn-primary"><i class="bi bi-search"></i> Search</button>
                     <a href="<?= BASE_URL ?>/admin/occupancy.php" class="btn btn-sm btn-secondary">Reset</a>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="d-flex gap-3 mb-3 flex-wrap">
-        <span><span class="badge bg-success">Available</span> Free beds available</span>
-        <span><span class="badge bg-danger">Full</span> No free beds</span>
-        <span><span class="badge bg-warning text-dark">Maintenance</span> Under maintenance</span>
-        <span><span class="badge bg-secondary">Reserved</span> Reserved / Unknown</span>
-    </div>
+    <?php foreach ($groups as $g):
+        if (!count($g['rooms'])) continue;
+        $g_occ = array_sum(array_column($g['rooms'], 'occupancy'));
+        $g_cap = array_sum(array_column($g['rooms'], 'capacity'));
+        $g_pct = $g_cap > 0 ? round(($g_occ / $g_cap) * 100) : 0;
+        $g_vacant = $g_cap - $g_occ;
 
-    <?php foreach ($floors as $floor => $floor_rooms):
-        $floor_occ = array_sum(array_column($floor_rooms, 'occupancy'));
-        $floor_cap = array_sum(array_column($floor_rooms, 'capacity'));
-        $floor_pct = $floor_cap > 0 ? round(($floor_occ / $floor_cap) * 100) : 0;
+        $floors = [];
+        foreach ($g['rooms'] as $r) {
+            $floors[$r['floor']][] = $r;
+        }
     ?>
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-layers"></i> Floor <?= sanitize($floor) ?></h5>
-            <span class="text-muted small"><?= $floor_occ ?> / <?= $floor_cap ?> beds filled (<?= $floor_pct ?>%)</span>
+    <div class="card shadow-sm mb-4 border-top border-4 border-<?= $g['color'] ?>">
+        <div class="card-header bg-<?= $g['color'] ?> text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5 class="mb-0"><i class="bi <?= $g['icon'] ?> me-1"></i> <?= $g['title'] ?></h5>
+            <span class="d-flex gap-2 flex-wrap">
+                <span class="badge bg-light text-dark"><?= count($g['rooms']) ?> rooms</span>
+                <span class="badge bg-light text-dark"><?= $g_occ ?> / <?= $g_cap ?> beds filled</span>
+                <span class="badge bg-light text-dark"><?= $g_vacant ?> vacant</span>
+                <span class="badge bg-light text-dark"><?= $g_pct ?>% occupancy</span>
+            </span>
         </div>
         <div class="card-body">
-            <div class="row g-3">
-                <?php foreach ($floor_rooms as $r):
-                    $color_class = match ($r['status']) {
-                        'Available'    => 'success',
-                        'Full'         => 'danger',
-                        'Maintenance'  => 'warning',
-                        default        => 'secondary'
-                    };
-                    $bg_color = match ($r['status']) {
-                        'Available'    => '#d4edda',
-                        'Full'         => '#f8d7da',
-                        'Maintenance'  => '#fff3cd',
-                        default        => '#e2e3e5'
-                    };
-                    $border_color = match ($r['status']) {
-                        'Available'    => '#28a745',
-                        'Full'         => '#dc3545',
-                        'Maintenance'  => '#ffc107',
-                        default        => '#6c757d'
-                    };
-                ?>
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                    <div class="card h-100 border-0" style="background: <?= $bg_color ?>; border-left: 4px solid <?= $border_color ?>;">
-                        <div class="card-body text-center p-3">
-                            <h6 class="card-title mb-1 fw-bold"><?= sanitize($r['room_no']) ?></h6>
-                            <div class="small text-muted mb-1"><?= sanitize($r['room_type']) ?></div>
-                            <div class="small fw-semibold"><?= $r['occupancy'] ?> / <?= $r['capacity'] ?></div>
-                            <span class="badge bg-<?= $color_class ?> mt-1"><?= $r['status'] ?></span>
+            <?php foreach ($floors as $floor => $floor_rooms):
+                $floor_occ = array_sum(array_column($floor_rooms, 'occupancy'));
+                $floor_cap = array_sum(array_column($floor_rooms, 'capacity'));
+                $floor_pct = $floor_cap > 0 ? round(($floor_occ / $floor_cap) * 100) : 0;
+            ?>
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0 text-muted"><i class="bi bi-layers"></i> Floor <?= sanitize($floor) ?></h6>
+                    <span class="text-muted small"><?= $floor_occ ?> / <?= $floor_cap ?> beds (<?= $floor_pct ?>%)</span>
+                </div>
+                <div class="row g-3">
+                    <?php foreach ($floor_rooms as $r):
+                        $color_class = match ($r['status']) {
+                            'Available'    => 'success',
+                            'Full'         => 'danger',
+                            'Maintenance'  => 'warning',
+                            default        => 'secondary'
+                        };
+                        $bg_color = match ($r['status']) {
+                            'Available'    => '#d4edda',
+                            'Full'         => '#f8d7da',
+                            'Maintenance'  => '#fff3cd',
+                            default        => '#e2e3e5'
+                        };
+                        $border_color = match ($r['status']) {
+                            'Available'    => '#28a745',
+                            'Full'         => '#dc3545',
+                            'Maintenance'  => '#ffc107',
+                            default        => '#6c757d'
+                        };
+                    ?>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="card h-100 border-0" style="background: <?= $bg_color ?>; border-left: 4px solid <?= $border_color ?>;">
+                            <div class="card-body text-center p-3">
+                                <h6 class="card-title mb-1 fw-bold"><?= sanitize($r['room_no']) ?></h6>
+                                <div class="small text-muted mb-1"><?= sanitize($r['room_type']) ?></div>
+                                <div class="small fw-semibold"><?= max(0,$r['occupancy']) ?> / <?= $r['capacity'] ?></div>
+                                <span class="badge bg-<?= $color_class ?> mt-1"><?= $r['status'] ?></span>
+                            </div>
                         </div>
                     </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
             </div>
+            <?php endforeach; ?>
         </div>
     </div>
     <?php endforeach; ?>

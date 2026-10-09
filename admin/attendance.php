@@ -165,7 +165,7 @@ $offset = $pages['offset'];
                             <span class="badge bg-info"><?= $exStatus ?: 'N/A' ?></span>
                         <?php else: ?>
                             <div class="d-flex flex-wrap gap-1">
-                                <?php foreach (['Present','Absent','Late','On Leave','Medical Leave','Weekend Leave','Outside Hostel'] as $st): ?>
+                                <?php foreach (['Present','Absent','Late','On Leave','Medical Leave'] as $st): ?>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="status[<?= $s['id'] ?>]" value="<?= $st ?>" <?= $st==='Present'?'checked':'' ?> id="s<?= $s['id'] ?>_<?= $st ?>">
                                     <label class="form-check-label" for="s<?= $s['id'] ?>_<?= $st ?>"><?= $st ?></label>
