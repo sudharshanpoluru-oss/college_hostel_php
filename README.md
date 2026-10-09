@@ -24,6 +24,53 @@ Entry point: `index.php` → redirects to `public/index.php` (public homepage).
 
 ---
 
+## 1b. Visual map — how everything connects
+
+### System architecture
+
+```mermaid
+flowchart LR
+    Browser["Browser<br/>Public / Student / Warden / Admin"]
+    Apache["Apache + PHP 8<br/>XAMPP htdocs/hostel"]
+    MySQL[("MySQL hostel_db<br/>~40 tables")]
+    SMTP["Gmail SMTP:465<br/>forgot-password mail"]
+    SBI["SBI Collect<br/>manual ref"]
+    PPe["PhonePe PG UAT<br/>init + callback"]
+
+    Browser --> Apache
+    Apache --> MySQL
+    Apache --> SMTP
+    Apache --> SBI
+    Apache --> PPe
+```
+
+### Who can go where
+
+```mermaid
+flowchart TD
+    Pub["Public site<br/>public/index, rooms, about,<br/>gallery, contact"] --> Auth["auth/login + register"]
+    Auth --> S["Student portal<br/>dashboard, fees, mess,<br/>leave, complaints"]
+    Auth --> W["Warden panel<br/>attendance, roll-call,<br/>leaves, discipline"]
+    Auth --> A["Admin panel<br/>students, rooms,<br/>fees, reports, backup"]
+    S --> DB[("hostel_db")]
+    W --> DB
+    A --> DB
+```
+
+### Student lifecycle (admission → vacate)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Registered: register.php
+    Registered --> Active: admin approves + allocates room
+    Active --> Active: pays fees, attendance, mess, leaves
+    Active --> VacateRequested: student vacate.php
+    VacateRequested --> Vacated: admin approves → vacated_students
+    Vacated --> [*]
+```
+
+---
+
 ## 2. Features (module-wise)
 
 ### Public website (`public/`)
@@ -94,6 +141,22 @@ backups/                   → DB dumps from admin/backup.php (git-ignored)
 ```
 
 Database tables (~40): `users`, `students`, `wardens`, `rooms`, `room_allocations`, `fees`, `attendance`, `leaves`, `complaints`, `complaint_logs`, `maintenance_requests`, `room_maintenance_history`, `room_inspections`, `room_change_requests`, `vacate_requests`, `vacated_students`, `mess_menu`, `meal_ratings`, `notices`, `notifications`, `hostel_events`, `gallery`, `testimonials`, `faq`, `management_staff`, `contact_messages`, `visitor_logs`, `discipline_records`, `medical_records`, `emergency_reports`, `emergency_logs`, `night_roll_call`, `daily_reports`, `student_digital_ids`, `student_timeline`, `student_feedback`, `lost_found`, `inventory`, `activity_log`, `audit_logs`, `login_attempts`, `password_resets`, `backup_history`.
+
+### Core DB relationships (simplified)
+
+```mermaid
+erDiagram
+    users ||--o| students : has
+    users ||--o| wardens : has
+    students ||--many room_allocations : gets
+    rooms ||--many room_allocations : fills
+    students ||--many fees : billed
+    students ||--many attendance : marked
+    students ||--many leaves : applies
+    students ||--many complaints : raises
+    students ||--many maintenance_requests : raises
+    students ||--many vacate_requests : requests
+```
 
 ---
 
@@ -207,6 +270,60 @@ Change the admin password immediately after install (`auth/change-password.php` 
 **Complaint:** Student → Complaints → raise → Warden/Admin → Working → Resolved.
 **Vacate:** Student → Vacate → reason → Admin → approve → archived to `vacated_students`.
 **Backup:** Admin → Backup → dump → stored in `backups/` + logged in `backup_history`.
+
+### Fee payment flow (SBI Collect / UPI / PhonePe)
+
+```mermaid
+sequenceDiagram
+    participant S as Student
+    participant H as Hostel App
+    participant B as SBI Collect / UPI app
+    participant A as Admin
+
+    S->>H: Open fees.php → pay.php → sbi-pay / upi-pay
+    H->>S: Show due amount + roll no
+    S->>B: Pay exact amount (external)
+    B->>S: Return DU/CLRN ref or UTR
+    S->>H: Submit ref (regex ^[A-Z0-9]{6,20}$)
+    H->>H: Save receipt_no + transaction_id (Partial/Paid)
+    A->>H: Verify ref vs bank record → confirm
+    H->>S: receipt.php printable
+```
+
+PhonePe variant: `phonepe-init.php` → redirect to PG → `phonepe-callback.php` verifies salt → marks Paid.
+
+### Leave approval flow
+
+```mermaid
+flowchart TD
+    S["Student<br/>leave.php → apply"] --> P["leaves status=Pending"]
+    P --> W{"Warden/Admin<br/>leaves.php"}
+    W -->|Approve| A["Approved"]
+    W -->|Reject + remark| R["Rejected"]
+    A --> T["student_timeline + notification"]
+    R --> T
+```
+
+### Complaint / maintenance flow
+
+```mermaid
+flowchart LR
+    S["Student raises<br/>complaints / maintenance"] --> P["Pending"]
+    P --> W["Warden/Admin takes up<br/>Working"]
+    W --> R["Resolved + admin_response"]
+    R --> N["Notification to student"]
+```
+
+### Room allocation flow
+
+```mermaid
+flowchart TD
+    Adm["Admin: rooms.php<br/>create room"] --> Av["status=Available"]
+    Av --> Al["allocations.php<br/>assign student + bed"]
+    Al --> Occ["occupancy++<br/>Full when occupancy=capacity"]
+    Occ --> Ch["room-change / vacate requests"]
+    Ch --> Av
+```
 
 ---
 
